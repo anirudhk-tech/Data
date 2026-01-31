@@ -6,7 +6,7 @@ import {
   updateRunResults,
 } from "../lib/db";
 import { base64Decode, parseCSV, serializeCSV, base64Encode, getCSVHash } from "../lib/csv";
-import { validatePipeline, runPipeline } from "../lib/wasm-engine";
+import { validatePipeline, runPipeline } from "../../engine_wasm/bindings";
 import { computeMetrics, evaluateRun } from "../lib/eval";
 import type { RerunPipelineRequest, RerunPipelineResponse } from "../lib/types";
 

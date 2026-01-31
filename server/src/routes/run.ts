@@ -9,7 +9,7 @@ import {
 } from "../lib/db";
 import { generatePipelineSpec, repairPipelineSpec } from "../lib/keywords";
 import { base64Decode, parseCSV, serializeCSV, base64Encode, getCSVHash } from "../lib/csv";
-import { validatePipeline, runPipeline } from "../lib/wasm-engine";
+import { validatePipeline, runPipeline } from "../../engine_wasm/bindings";
 import { computeMetrics, evaluateRun } from "../lib/eval";
 import type { CreatePipelineRequest, CreatePipelineResponse, PipelineSpec } from "../lib/types";
 

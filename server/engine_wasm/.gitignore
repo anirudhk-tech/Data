@@ -1,0 +1,5 @@
+# Build output
+build/
+
+# Dependencies (downloaded via make install-deps)
+lib/json.hpp
