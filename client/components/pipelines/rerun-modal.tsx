@@ -82,7 +82,7 @@ export function RerunModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Play className="h-5 w-5" />
@@ -93,7 +93,7 @@ export function RerunModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-hidden">
           {/* Error Message */}
           {error && (
             <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
@@ -105,7 +105,7 @@ export function RerunModal({
           {!parsedData ? (
             <CSVUpload onDataParsed={handleDataParsed} />
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 overflow-hidden">
               {/* File Info */}
               <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-3">
                 <div className="flex items-center gap-2">
@@ -119,9 +119,9 @@ export function RerunModal({
                 </Button>
               </div>
 
-              {/* Preview */}
-              <div className="max-h-[300px] overflow-auto rounded-lg border">
-                <DataPreview data={parsedData} maxRows={5} />
+              {/* Preview - contained with proper overflow */}
+              <div className="overflow-hidden rounded-lg border">
+                <DataPreview data={parsedData} maxRows={5} className="max-h-[280px]" />
               </div>
             </div>
           )}

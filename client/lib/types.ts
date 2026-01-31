@@ -41,6 +41,20 @@ export interface Run {
   keywords_trace_id: string | null;
   created_at: string;
   output_base64: string | null;
+  logs: LogEntry[] | null;
+}
+
+// Execution Log Types
+export type LogLevel = 'info' | 'success' | 'warn' | 'error' | 'debug';
+export type LogSource = 'system' | 'keywords' | 'wasm' | 'validator' | 'executor';
+
+export interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  source: LogSource;
+  message: string;
+  details?: Record<string, unknown>;
+  duration_ms?: number;
 }
 
 // Live Builder Types

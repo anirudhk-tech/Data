@@ -77,11 +77,11 @@ export function RunSummary({ run }: RunSummaryProps) {
 
       {/* Eval Score - Powered by Keywords AI */}
       <Card className="relative overflow-hidden">
-        <div className="absolute right-0 top-0 h-16 w-16 bg-gradient-to-bl from-violet-500/10 to-transparent" />
+        <div className="absolute right-0 top-0 h-16 w-16 bg-gradient-to-bl from-primary/20 to-transparent" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="flex items-center gap-1.5">
             <CardTitle className="text-sm font-medium">Quality Score</CardTitle>
-            <Sparkles className="h-3 w-3 text-violet-500" />
+            <Sparkles className="h-3 w-3 text-primary" />
           </div>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
@@ -98,11 +98,11 @@ export function RunSummary({ run }: RunSummaryProps) {
       </Card>
 
       {/* Keywords AI Attribution */}
-      <Card className="border-violet-200 bg-gradient-to-br from-violet-50/50 to-white dark:border-violet-900 dark:from-violet-950/20 dark:to-background md:col-span-2 lg:col-span-4">
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent md:col-span-2 lg:col-span-4 glow-border">
         <CardContent className="flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-100 dark:bg-violet-900/50">
-              <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/20 glow-sm">
+              <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
               <p className="text-sm font-medium">Evaluation powered by Keywords AI</p>
@@ -116,7 +116,7 @@ export function RunSummary({ run }: RunSummaryProps) {
               href={`https://platform.keywordsai.co/platform/traces/${run.keywords_trace_id}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-md bg-violet-100 px-3 py-1.5 text-sm font-medium text-violet-700 transition-colors hover:bg-violet-200 dark:bg-violet-900/50 dark:text-violet-300 dark:hover:bg-violet-900"
+              className="flex items-center gap-1.5 rounded-lg bg-primary/20 border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/30 hover:glow-sm"
             >
               View Trace
               <ExternalLink className="h-3.5 w-3.5" />

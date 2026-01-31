@@ -1,4 +1,4 @@
--- PipeCanvas Database Schema
+-- Dagger Database Schema
 -- Migration: 001_init
 
 -- Enable UUID extension

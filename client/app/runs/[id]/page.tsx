@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RunSummary } from "@/components/runs/run-summary";
 import { OutputPreview } from "@/components/runs/output-preview";
+import { ExecutionLogs } from "@/components/runs/execution-logs";
 import { getRun } from "@/lib/api";
 import { formatDate } from "@/lib/date-utils";
 import type { Run } from "@/lib/types";
@@ -87,12 +88,19 @@ export default function RunDetailPage() {
 
       {/* Failed State */}
       {run.status === "failed" && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-6">
+        <div className="mb-8 rounded-lg border border-destructive/50 bg-destructive/10 p-6">
           <h3 className="font-semibold text-destructive">Run Failed</h3>
           <p className="mt-2 text-sm text-muted-foreground">
             This run failed after {run.fix_iterations} fix iterations. 
-            Check the trace ID for more details about what went wrong.
+            Check the logs below for details about what went wrong.
           </p>
+        </div>
+      )}
+
+      {/* Execution Logs */}
+      {run.logs && run.logs.length > 0 && (
+        <div className="mt-8">
+          <ExecutionLogs logs={run.logs} />
         </div>
       )}
     </div>

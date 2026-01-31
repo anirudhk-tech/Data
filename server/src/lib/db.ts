@@ -7,6 +7,7 @@ import type {
   RunStatus,
   RunMetrics,
   RunEval,
+  LogEntry,
 } from "./types";
 
 // Singleton Supabase client
@@ -232,6 +233,7 @@ export async function updateRunResults(
     metrics_json?: RunMetrics;
     eval_json?: RunEval;
     validation_errors_json?: string[];
+    logs_json?: LogEntry[];
     keywords_trace_id?: string;
   }
 ): Promise<void> {

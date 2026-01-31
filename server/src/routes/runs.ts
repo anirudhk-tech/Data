@@ -28,5 +28,6 @@ export const runsRoutes = new Elysia()
       output_base64: run.output_base64,
       validation_errors: run.validation_errors_json,
       metrics: run.metrics_json,
+      logs: run.logs_json,
     };
   });

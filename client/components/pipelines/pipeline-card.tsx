@@ -62,8 +62,11 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
   };
 
   return (
-    <Card className="group transition-shadow hover:shadow-md">
-      <CardHeader className="pb-3">
+    <Card className="group relative overflow-hidden transition-all duration-300 hover:glow-border">
+      {/* Subtle gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      
+      <CardHeader className="relative pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 space-y-1">
             {isEditing ? (
@@ -72,7 +75,7 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="h-7 text-sm font-semibold"
+                  className="h-7 text-sm font-semibold bg-white/5 border-white/10"
                   autoFocus
                 />
                 <Button 
@@ -98,7 +101,7 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
               <CardTitle className="text-lg">
                 <Link 
                   href={`/pipelines/${pipeline.id}`}
-                  className="hover:underline"
+                  className="hover:text-primary transition-colors"
                 >
                   {pipeline.name}
                 </Link>
@@ -112,18 +115,19 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
             {pipeline.last_run_status && (
               <Badge 
                 variant={pipeline.last_run_status === "success" ? "default" : "destructive"}
+                className={pipeline.last_run_status === "success" ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" : ""}
               >
                 {pipeline.last_run_status}
               </Badge>
             )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={startEditing}>
+              <DropdownMenuContent align="end" className="bg-[#0d0d0d] border-white/10">
+                <DropdownMenuItem onClick={startEditing} className="hover:bg-white/10">
                   <Pencil className="mr-2 h-4 w-4" />
                   Rename
                 </DropdownMenuItem>
@@ -132,23 +136,23 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="relative">
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
             {pipeline.last_run_at ? (
               <span>Last run {formatDistanceToNow(pipeline.last_run_at)}</span>
             ) : (
-              <span>Never run</span>
+              <span className="text-muted-foreground/60">Never run</span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
               <Link href={`/pipelines/${pipeline.id}`}>
                 <Play className="mr-1 h-3 w-3" />
-                Run Again
+                Run
               </Link>
             </Button>
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" asChild className="group-hover:text-primary transition-colors">
               <Link href={`/pipelines/${pipeline.id}`}>
                 <ChevronRight className="h-4 w-4" />
               </Link>

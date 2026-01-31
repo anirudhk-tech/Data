@@ -25,7 +25,7 @@ const app = new Elysia()
   .listen(process.env.PORT || 3001);
 
 console.log(
-  `🚀 PipeCanvas server running at http://${app.server?.hostname}:${app.server?.port}`
+  `🚀 Dagger server running at http://${app.server?.hostname}:${app.server?.port}`
 );
 console.log(`   WASM engine: ${isWasmLoaded() ? "loaded" : "using TypeScript fallback"}`);
 

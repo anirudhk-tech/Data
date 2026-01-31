@@ -121,7 +121,7 @@ CMD ["bun", "run", "server.ts"]
 
   const readme = `# Pipeline Export: ${versionId}
 
-This is an auto-generated export of a PipeCanvas pipeline.
+This is an auto-generated export of a Dagger pipeline.
 
 ## Files
 

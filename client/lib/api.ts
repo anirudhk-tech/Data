@@ -145,6 +145,7 @@ export async function getPipeline(id: string): Promise<{ pipeline: Pipeline; ver
       keywords_trace_id: r.keywords_trace_id,
       created_at: r.created_at,
       output_base64: null, // Not included in list response
+      logs: null, // Not included in list response
     }));
 
     return { pipeline, versions, runs: formattedRuns };
@@ -188,6 +189,14 @@ interface RunDetailResponse {
   output_base64: string | null;
   validation_errors: string[] | null;
   metrics: { input_rows: number; output_rows: number; null_rate?: number; exec_time_ms: number } | null;
+  logs: Array<{
+    timestamp: string;
+    level: string;
+    source: string;
+    message: string;
+    details?: Record<string, unknown>;
+    duration_ms?: number;
+  }> | null;
 }
 
 export async function getRun(id: string): Promise<Run | null> {
@@ -207,6 +216,7 @@ export async function getRun(id: string): Promise<Run | null> {
       keywords_trace_id: data.keywords_trace_id,
       created_at: data.created_at,
       output_base64: data.output_base64,
+      logs: data.logs as Run["logs"],
     };
   } catch (error) {
     console.error("Failed to fetch run:", error);

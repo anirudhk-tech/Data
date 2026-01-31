@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PipelineForm } from "@/components/pipelines/pipeline-form";
 import { LiveBuilderModal } from "@/components/live-builder/live-builder-modal";
@@ -42,17 +42,24 @@ export default function NewPipelinePage() {
 
   return (
     <div className="container max-w-3xl py-8">
-      <div className="mb-8">
+      <div className="mb-10">
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/pipelines">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Pipelines
           </Link>
         </Button>
-        <h1 className="text-3xl font-bold tracking-tight">Create Pipeline</h1>
-        <p className="text-muted-foreground">
-          Upload your data and describe what you want to do with it
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary glow-sm">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Create Pipeline</h1>
+            <p className="text-muted-foreground">
+              Upload your data and describe what you want to do with it
+            </p>
+          </div>
+        </div>
       </div>
 
       <PipelineForm onSubmit={handleSubmit} isSubmitting={isBuilding} />

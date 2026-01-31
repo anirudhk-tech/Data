@@ -108,16 +108,18 @@ export function CSVUpload({ onDataParsed, className }: CSVUploadProps) {
 
   if (fileName) {
     return (
-      <div className={cn("rounded-lg border bg-muted/50 p-4", className)}>
+      <div className={cn("rounded-xl border border-primary/20 bg-primary/5 p-4 glow-border", className)}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <FileSpreadsheet className="h-8 w-8 text-primary" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+              <FileSpreadsheet className="h-5 w-5 text-primary" />
+            </div>
             <div>
               <p className="font-medium">{fileName}</p>
               <p className="text-sm text-muted-foreground">File loaded successfully</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleClear}>
+          <Button variant="ghost" size="icon" onClick={handleClear} className="hover:bg-white/10">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -128,7 +130,7 @@ export function CSVUpload({ onDataParsed, className }: CSVUploadProps) {
   return (
     <div className={cn("space-y-4", className)}>
       <Tabs defaultValue="upload">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-2 bg-white/5">
           <TabsTrigger value="upload">Upload File</TabsTrigger>
           <TabsTrigger value="paste">Paste Data</TabsTrigger>
         </TabsList>
@@ -139,10 +141,10 @@ export function CSVUpload({ onDataParsed, className }: CSVUploadProps) {
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             className={cn(
-              "relative rounded-lg border-2 border-dashed p-8 transition-colors",
+              "relative rounded-xl border-2 border-dashed p-10 transition-all duration-300",
               isDragging
-                ? "border-primary bg-primary/5"
-                : "border-muted-foreground/25 hover:border-muted-foreground/50"
+                ? "border-primary bg-primary/10 glow"
+                : "border-white/10 hover:border-primary/50 hover:bg-white/[0.02]"
             )}
           >
             <input
@@ -151,8 +153,16 @@ export function CSVUpload({ onDataParsed, className }: CSVUploadProps) {
               onChange={handleFileInput}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
-            <div className="flex flex-col items-center gap-2 text-center">
-              <Upload className="h-10 w-10 text-muted-foreground" />
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className={cn(
+                "flex h-14 w-14 items-center justify-center rounded-xl transition-all duration-300",
+                isDragging ? "bg-primary/20 glow-sm" : "bg-white/5"
+              )}>
+                <Upload className={cn(
+                  "h-7 w-7 transition-colors",
+                  isDragging ? "text-primary" : "text-muted-foreground"
+                )} />
+              </div>
               <div>
                 <p className="font-medium">Drop your CSV file here</p>
                 <p className="text-sm text-muted-foreground">or click to browse</p>

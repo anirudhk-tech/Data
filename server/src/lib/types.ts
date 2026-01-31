@@ -37,6 +37,7 @@ export interface DbRun {
   metrics_json: RunMetrics | null;
   eval_json: RunEval | null;
   validation_errors_json: string[] | null;
+  logs_json: LogEntry[] | null;
   keywords_trace_id: string | null;
   created_at: string;
   finished_at: string | null;
@@ -89,6 +90,22 @@ export interface RunMetrics {
   output_rows: number;
   null_rate?: number;
   exec_time_ms: number;
+}
+
+// ============================================
+// Execution Log Types
+// ============================================
+
+export type LogLevel = "info" | "success" | "warn" | "error" | "debug";
+export type LogSource = "system" | "keywords" | "wasm" | "validator" | "executor";
+
+export interface LogEntry {
+  timestamp: string;
+  level: LogLevel;
+  source: LogSource;
+  message: string;
+  details?: Record<string, unknown>;
+  duration_ms?: number;
 }
 
 export interface RunEval {
@@ -182,6 +199,7 @@ export interface RunDetailResponse {
   output_base64: string | null;
   validation_errors: string[] | null;
   metrics: RunMetrics | null;
+  logs: LogEntry[] | null;
 }
 
 export interface RerunPipelineRequest {
