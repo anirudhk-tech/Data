@@ -32,7 +32,7 @@ export interface Run {
   id: string;
   pipeline_id: string;
   pipeline_version_id: string;
-  status: 'pending' | 'running' | 'success' | 'failed';
+  status: 'pending' | 'validating' | 'running' | 'success' | 'failed';
   input_rows: number;
   output_rows: number;
   fix_iterations: number;

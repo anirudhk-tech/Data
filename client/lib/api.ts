@@ -4,244 +4,252 @@ import type {
   Run, 
   CreatePipelineRequest, 
   CreatePipelineResponse,
-  PipelineSpec 
 } from "./types";
 
-// Mock Data
-export const mockPipelines: Pipeline[] = [
-  {
-    id: "pipe_1",
-    name: "Customer Deduplication",
-    description: "Clean and dedupe customer records, keeping email, name, and company columns",
-    created_at: "2026-01-28T10:30:00Z",
-    last_run_at: "2026-01-30T14:22:00Z",
-    last_run_status: "success",
-  },
-  {
-    id: "pipe_2",
-    name: "Sales Data Cleanup",
-    description: "Standardize sales records, fix date formats, and remove duplicates",
-    created_at: "2026-01-25T08:15:00Z",
-    last_run_at: "2026-01-29T09:45:00Z",
-    last_run_status: "success",
-  },
-  {
-    id: "pipe_3",
-    name: "Email List Validation",
-    description: "Validate email addresses and remove invalid entries",
-    created_at: "2026-01-20T16:00:00Z",
-    last_run_at: "2026-01-27T11:30:00Z",
-    last_run_status: "failed",
-  },
-];
+// API Base URL - defaults to local server
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
 
-export const mockPipelineVersions: Record<string, PipelineVersion[]> = {
-  pipe_1: [
-    {
-      id: "pver_1_1",
-      pipeline_id: "pipe_1",
-      version: 1,
-      spec: {
-        nodes: [
-          { id: "n1", op: "parse_csv", config: { delimiter: "," }, inputs: [] },
-          { id: "n2", op: "dedupe", config: { key_columns: ["email"] }, inputs: ["n1"] },
-          { id: "n3", op: "select_columns", config: { columns: ["email", "name", "company"] }, inputs: ["n2"] },
-        ],
-      },
-      created_at: "2026-01-28T10:30:00Z",
-    },
-  ],
-  pipe_2: [
-    {
-      id: "pver_2_1",
-      pipeline_id: "pipe_2",
-      version: 1,
-      spec: {
-        nodes: [
-          { id: "n1", op: "parse_csv", config: { delimiter: "," }, inputs: [] },
-          { id: "n2", op: "fix_dates", config: { format: "YYYY-MM-DD" }, inputs: ["n1"] },
-          { id: "n3", op: "dedupe", config: { key_columns: ["order_id"] }, inputs: ["n2"] },
-        ],
-      },
-      created_at: "2026-01-25T08:15:00Z",
-    },
-  ],
-  pipe_3: [
-    {
-      id: "pver_3_1",
-      pipeline_id: "pipe_3",
-      version: 1,
-      spec: {
-        nodes: [
-          { id: "n1", op: "parse_csv", config: { delimiter: "," }, inputs: [] },
-          { id: "n2", op: "validate_email", config: { strict: true }, inputs: ["n1"] },
-          { id: "n3", op: "filter", config: { condition: "email_valid == true" }, inputs: ["n2"] },
-        ],
-      },
-      created_at: "2026-01-20T16:00:00Z",
-    },
-  ],
-};
+// ============================================
+// Helper Functions
+// ============================================
 
-export const mockRuns: Record<string, Run[]> = {
-  pipe_1: [
-    {
-      id: "run_1_1",
-      pipeline_id: "pipe_1",
-      pipeline_version_id: "pver_1_1",
-      status: "success",
-      input_rows: 1200,
-      output_rows: 1133,
-      fix_iterations: 1,
-      eval_score: 1.0,
-      constraint_pass: true,
-      keywords_trace_id: "kw_trace_abc123",
-      created_at: "2026-01-30T14:22:00Z",
-      output_base64: null,
+async function fetchAPI<T>(
+  endpoint: string,
+  options?: RequestInit
+): Promise<T> {
+  const url = `${API_BASE_URL}${endpoint}`;
+  
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
     },
-    {
-      id: "run_1_2",
-      pipeline_id: "pipe_1",
-      pipeline_version_id: "pver_1_1",
-      status: "success",
-      input_rows: 850,
-      output_rows: 812,
-      fix_iterations: 0,
-      eval_score: 1.0,
-      constraint_pass: true,
-      keywords_trace_id: "kw_trace_def456",
-      created_at: "2026-01-29T10:15:00Z",
-      output_base64: null,
-    },
-  ],
-  pipe_2: [
-    {
-      id: "run_2_1",
-      pipeline_id: "pipe_2",
-      pipeline_version_id: "pver_2_1",
-      status: "success",
-      input_rows: 5000,
-      output_rows: 4823,
-      fix_iterations: 2,
-      eval_score: 0.98,
-      constraint_pass: true,
-      keywords_trace_id: "kw_trace_ghi789",
-      created_at: "2026-01-29T09:45:00Z",
-      output_base64: null,
-    },
-  ],
-  pipe_3: [
-    {
-      id: "run_3_1",
-      pipeline_id: "pipe_3",
-      pipeline_version_id: "pver_3_1",
-      status: "failed",
-      input_rows: 2500,
-      output_rows: 0,
-      fix_iterations: 3,
-      eval_score: null,
-      constraint_pass: false,
-      keywords_trace_id: "kw_trace_jkl012",
-      created_at: "2026-01-27T11:30:00Z",
-      output_base64: null,
-    },
-  ],
-};
+  });
 
-// Sample output data for preview
-export const mockOutputData = {
-  headers: ["email", "name", "company"],
-  rows: [
-    ["john@acme.com", "John Smith", "Acme Corp"],
-    ["jane@techco.io", "Jane Doe", "TechCo"],
-    ["bob@startup.xyz", "Bob Johnson", "Startup XYZ"],
-    ["alice@enterprise.com", "Alice Williams", "Enterprise Inc"],
-    ["charlie@agency.net", "Charlie Brown", "Digital Agency"],
-    ["diana@consulting.co", "Diana Prince", "Consulting Partners"],
-    ["evan@solutions.biz", "Evan Rogers", "Solutions Ltd"],
-    ["fiona@global.org", "Fiona Chen", "Global Nonprofit"],
-    ["george@retail.shop", "George Miller", "Retail Plus"],
-    ["hannah@finance.bank", "Hannah Lee", "Finance Bank"],
-  ],
-};
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: response.statusText }));
+    throw new Error(error.message || `API error: ${response.status}`);
+  }
 
-// API Client Functions (stubs)
+  return response.json();
+}
+
+// ============================================
+// Pipeline API
+// ============================================
+
+interface PipelineListItem {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  latest_version: number | null;
+  last_run: {
+    run_id: string;
+    status: string;
+    created_at: string;
+  } | null;
+}
+
 export async function getPipelines(): Promise<Pipeline[]> {
-  // Simulate network delay
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return mockPipelines;
+  const data = await fetchAPI<PipelineListItem[]>("/pipelines");
+  
+  // Transform to client Pipeline format
+  return data.map((p) => ({
+    id: p.id,
+    name: p.name,
+    description: p.description || "",
+    created_at: p.created_at,
+    last_run_at: p.last_run?.created_at || null,
+    last_run_status: p.last_run?.status === "success" ? "success" 
+      : p.last_run?.status === "failed" ? "failed" 
+      : null,
+  }));
+}
+
+interface PipelineDetailResponse {
+  pipeline_id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  versions: {
+    pipeline_version_id: string;
+    version: number;
+    created_at: string;
+    source_prompt: string;
+    spec_json: { nodes: Array<{ id: string; op: string; config: Record<string, unknown>; inputs?: string[] }> } | null;
+  }[];
+}
+
+interface RunListItem {
+  id: string;
+  pipeline_id: string;
+  pipeline_version_id: string;
+  status: string;
+  input_rows: number | null;
+  output_rows: number | null;
+  fix_iterations: number;
+  eval_score: number | null;
+  constraint_pass: boolean | null;
+  keywords_trace_id: string | null;
+  created_at: string;
+  finished_at: string | null;
 }
 
 export async function getPipeline(id: string): Promise<{ pipeline: Pipeline; versions: PipelineVersion[]; runs: Run[] } | null> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  const pipeline = mockPipelines.find((p) => p.id === id);
-  if (!pipeline) return null;
-  
-  return {
-    pipeline,
-    versions: mockPipelineVersions[id] || [],
-    runs: mockRuns[id] || [],
-  };
+  try {
+    // Fetch pipeline details and runs in parallel
+    const [detail, runs] = await Promise.all([
+      fetchAPI<PipelineDetailResponse>(`/pipelines/${id}`),
+      fetchAPI<RunListItem[]>(`/pipelines/${id}/runs`),
+    ]);
+
+    const pipeline: Pipeline = {
+      id: detail.pipeline_id,
+      name: detail.name,
+      description: detail.description || "",
+      created_at: detail.created_at,
+      last_run_at: runs[0]?.created_at || null,
+      last_run_status: runs[0]?.status === "success" ? "success"
+        : runs[0]?.status === "failed" ? "failed"
+        : null,
+    };
+
+    const versions: PipelineVersion[] = detail.versions.map((v) => ({
+      id: v.pipeline_version_id,
+      pipeline_id: detail.pipeline_id,
+      version: v.version,
+      spec: v.spec_json || { nodes: [] },
+      created_at: v.created_at,
+    }));
+
+    const formattedRuns: Run[] = runs.map((r) => ({
+      id: r.id,
+      pipeline_id: r.pipeline_id,
+      pipeline_version_id: r.pipeline_version_id,
+      status: r.status as Run["status"],
+      input_rows: r.input_rows || 0,
+      output_rows: r.output_rows || 0,
+      fix_iterations: r.fix_iterations,
+      eval_score: r.eval_score,
+      constraint_pass: r.constraint_pass,
+      keywords_trace_id: r.keywords_trace_id,
+      created_at: r.created_at,
+      output_base64: null, // Not included in list response
+    }));
+
+    return { pipeline, versions, runs: formattedRuns };
+  } catch (error) {
+    console.error("Failed to fetch pipeline:", error);
+    return null;
+  }
+}
+
+// ============================================
+// Run API
+// ============================================
+
+interface RunDetailResponse {
+  id: string;
+  pipeline_id: string;
+  pipeline_version_id: string;
+  status: string;
+  input_rows: number | null;
+  output_rows: number | null;
+  fix_iterations: number;
+  eval_score: number | null;
+  constraint_pass: boolean | null;
+  keywords_trace_id: string | null;
+  created_at: string;
+  finished_at: string | null;
+  output_base64: string | null;
+  validation_errors: string[] | null;
+  metrics: { input_rows: number; output_rows: number; null_rate?: number; exec_time_ms: number } | null;
 }
 
 export async function getRun(id: string): Promise<Run | null> {
-  await new Promise((resolve) => setTimeout(resolve, 300));
-  for (const runs of Object.values(mockRuns)) {
-    const run = runs.find((r) => r.id === id);
-    if (run) return run;
+  try {
+    const data = await fetchAPI<RunDetailResponse>(`/runs/${id}`);
+    
+    return {
+      id: data.id,
+      pipeline_id: data.pipeline_id,
+      pipeline_version_id: data.pipeline_version_id,
+      status: data.status as Run["status"],
+      input_rows: data.input_rows || 0,
+      output_rows: data.output_rows || 0,
+      fix_iterations: data.fix_iterations,
+      eval_score: data.eval_score,
+      constraint_pass: data.constraint_pass,
+      keywords_trace_id: data.keywords_trace_id,
+      created_at: data.created_at,
+      output_base64: data.output_base64,
+    };
+  } catch (error) {
+    console.error("Failed to fetch run:", error);
+    return null;
   }
-  return null;
 }
+
+// ============================================
+// Create & Run Pipeline
+// ============================================
 
 export async function createAndRunPipeline(
   request: CreatePipelineRequest
 ): Promise<CreatePipelineResponse> {
-  // This would call POST /run in the real implementation
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  
-  const newPipelineId = `pipe_${Date.now()}`;
-  const newVersionId = `pver_${Date.now()}`;
-  const newRunId = `run_${Date.now()}`;
-  
-  return {
-    pipeline_id: newPipelineId,
-    pipeline_version_id: newVersionId,
-    run_id: newRunId,
-    output: {
-      format: "csv",
-      content_base64: btoa("email,name,company\njohn@example.com,John,Acme"),
-    },
-    report: {
-      pipeline_spec: {
-        nodes: [
-          { id: "n1", op: "parse_csv", config: {}, inputs: [] },
-          { id: "n2", op: "transform", config: {}, inputs: ["n1"] },
-        ],
-      },
-      validation_errors: [],
-      fix_iterations: 1,
-      metrics: {
-        input_rows: 100,
-        output_rows: 95,
-      },
-      eval: {
-        constraint_pass: true,
-        score: 1.0,
-      },
-      keywords_trace_id: `kw_trace_${Date.now()}`,
-    },
+  return fetchAPI<CreatePipelineResponse>("/run", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+}
+
+// ============================================
+// Re-run Pipeline
+// ============================================
+
+interface RerunResponse {
+  run_id: string;
+  output: {
+    format: "csv";
+    content_base64: string;
+  };
+  report: {
+    metrics: {
+      input_rows: number;
+      output_rows: number;
+    };
+    eval: {
+      constraint_pass: boolean;
+      score: number;
+    };
   };
 }
 
 export async function rerunPipeline(
   pipelineId: string,
+  pipelineVersionId: string,
   data: { format: "csv"; content_base64: string }
-): Promise<{ run_id: string }> {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  return { run_id: `run_${Date.now()}` };
+): Promise<RerunResponse> {
+  return fetchAPI<RerunResponse>(`/pipelines/${pipelineId}/run`, {
+    method: "POST",
+    body: JSON.stringify({
+      pipeline_version_id: pipelineVersionId,
+      data,
+    }),
+  });
 }
 
+// ============================================
+// Export Docker
+// ============================================
+
 export async function exportDocker(pipelineVersionId: string): Promise<{ download_url: string }> {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  return { download_url: `https://example.com/export/${pipelineVersionId}.tar.gz` };
+  return fetchAPI<{ download_url: string }>("/export/docker", {
+    method: "POST",
+    body: JSON.stringify({
+      pipeline_version_id: pipelineVersionId,
+    }),
+  });
 }

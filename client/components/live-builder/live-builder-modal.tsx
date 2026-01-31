@@ -5,7 +5,7 @@ import { X, CheckCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AgentStepper } from "./agent-stepper";
-import { LiveSpecViewer } from "./live-spec-viewer";
+import { PipelineCanvas } from "./pipeline-canvas";
 import { ValidationFeed } from "./validation-feed";
 import { IterationProgress } from "./iteration-progress";
 import { simulatePipelineBuild, getInitialLiveBuilderState } from "@/lib/mock-streaming";
@@ -90,14 +90,14 @@ export function LiveBuilderModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
+      <DialogContent className="!max-w-[1400px] !w-[95vw] h-[85vh] flex flex-col overflow-hidden p-0">
+        <DialogHeader className="px-8 pt-6 pb-4 border-b shrink-0">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl">
+            <DialogTitle className="text-2xl font-semibold">
               {isComplete ? (
                 state.finalStatus === "success" ? (
-                  <span className="flex items-center gap-2">
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  <span className="flex items-center gap-3">
+                    <CheckCircle className="h-6 w-6 text-green-500" />
                     Pipeline Built Successfully
                   </span>
                 ) : (
@@ -109,55 +109,59 @@ export function LiveBuilderModal({
             </DialogTitle>
             {!isComplete && (
               <Button variant="ghost" size="icon" onClick={handleCancel}>
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             )}
           </div>
         </DialogHeader>
 
-        {/* Goal Summary */}
-        <div className="rounded-lg bg-muted/50 p-3">
-          <p className="text-sm">
-            <span className="font-medium">Goal: </span>
-            <span className="text-muted-foreground">{prompt}</span>
-          </p>
-        </div>
-
-        {/* Progress Bar */}
-        <IterationProgress
-          currentIteration={state.currentIteration}
-          maxIterations={state.maxIterations}
-          phase={state.phase}
-        />
-
-        {/* Main Content */}
-        <div className="grid gap-6 md:grid-cols-[280px_1fr]">
-          {/* Left Column - Agent Status & Validation */}
-          <div className="space-y-6">
-            <AgentStepper
-              currentPhase={state.phase}
-              currentIteration={state.currentIteration}
-            />
-            <ValidationFeed errors={state.validationErrors} />
+        <div className="flex-1 overflow-y-auto px-8 py-6 space-y-6">
+          {/* Goal Summary */}
+          <div className="rounded-lg bg-muted/50 p-4">
+            <p className="text-sm">
+              <span className="font-medium">Goal: </span>
+              <span className="text-muted-foreground">{prompt}</span>
+            </p>
           </div>
 
-          {/* Right Column - Live Spec */}
-          <LiveSpecViewer
-            spec={state.currentSpec}
-            previousSpec={state.previousSpec}
+          {/* Progress Bar */}
+          <IterationProgress
+            currentIteration={state.currentIteration}
+            maxIterations={state.maxIterations}
+            phase={state.phase}
           />
+
+          {/* Main Content */}
+          <div className="grid gap-8 lg:grid-cols-[320px_1fr] min-h-[400px]">
+            {/* Left Column - Agent Status & Validation */}
+            <div className="space-y-6">
+              <AgentStepper
+                currentPhase={state.phase}
+                currentIteration={state.currentIteration}
+              />
+              <ValidationFeed errors={state.validationErrors} />
+            </div>
+
+            {/* Right Column - Pipeline Canvas */}
+            <div className="min-h-[400px]">
+              <PipelineCanvas
+                spec={state.currentSpec}
+                previousSpec={state.previousSpec}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Actions */}
         {isComplete && (
-          <div className="flex justify-end gap-2 pt-4 border-t">
+          <div className="flex justify-end gap-3 px-8 py-4 border-t shrink-0 bg-background">
             {state.finalStatus === "failed" && (
               <Button variant="outline" onClick={handleCancel}>
                 Close
               </Button>
             )}
             {state.finalStatus === "success" && (
-              <Button onClick={handleViewResults}>
+              <Button size="lg" onClick={handleViewResults}>
                 View Results
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

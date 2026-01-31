@@ -82,7 +82,7 @@ export default function RunDetailPage() {
 
       {/* Output Preview */}
       {run.status === "success" && (
-        <OutputPreview runId={run.id} />
+        <OutputPreview runId={run.id} outputBase64={run.output_base64} />
       )}
 
       {/* Failed State */}

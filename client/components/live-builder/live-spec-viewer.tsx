@@ -65,9 +65,9 @@ export function LiveSpecViewer({ spec, previousSpec }: LiveSpecViewerProps) {
   }
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-sm font-medium">Pipeline Spec</h3>
-      <ScrollArea className="h-[400px] rounded-lg border bg-zinc-950 dark:bg-zinc-900" ref={scrollRef}>
+    <div className="flex flex-col h-full space-y-2">
+      <h3 className="text-sm font-medium shrink-0">Pipeline Spec</h3>
+      <ScrollArea className="flex-1 min-h-[300px] rounded-lg border bg-zinc-950 dark:bg-zinc-900" ref={scrollRef}>
         <pre className="p-4 text-sm">
           <code>
             {displayedLines.map((line, i) => (

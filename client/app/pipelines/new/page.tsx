@@ -37,7 +37,7 @@ export default function NewPipelinePage() {
   };
 
   return (
-    <div className="container max-w-3xl py-8">
+    <div className="container max-w-3xl py-8 px-8">
       <div className="mb-8">
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/pipelines">
