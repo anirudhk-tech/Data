@@ -4,6 +4,11 @@ import type { PipelineSpec, KeywordsMetadata, ParsedCSV } from "./types";
 // Keywords AI client (OpenAI-compatible)
 let keywordsClient: OpenAI | null = null;
 
+// Prompt IDs from Keywords AI Prompt Manager
+// Set these in your .env file after creating prompts in the Keywords AI dashboard
+const SPEC_GENERATE_PROMPT_ID = process.env.KEYWORDS_SPEC_GENERATE_PROMPT_ID;
+const SPEC_REPAIR_PROMPT_ID = process.env.KEYWORDS_SPEC_REPAIR_PROMPT_ID;
+
 function getKeywordsClient(): OpenAI {
   if (!keywordsClient) {
     const apiKey = process.env.KEYWORDS_AI_API_KEY;
@@ -23,7 +28,7 @@ function getKeywordsClient(): OpenAI {
 }
 
 // ============================================
-// Spec Generation
+// Fallback prompts (used when prompt IDs not configured)
 // ============================================
 
 const SPEC_GENERATE_SYSTEM_PROMPT = `You are a data pipeline specification generator. Given a user's description of what they want to do with their CSV data, generate a pipeline specification in JSON format.
@@ -59,6 +64,14 @@ Rules:
 
 Return ONLY the JSON spec, no explanation.`;
 
+const SPEC_REPAIR_SYSTEM_PROMPT = `You are a data pipeline specification repair assistant. Given a pipeline spec that failed validation and the validation errors, fix the spec to resolve the errors.
+
+Return ONLY the corrected JSON spec, no explanation.`;
+
+// ============================================
+// Spec Generation
+// ============================================
+
 export async function generatePipelineSpec(
   prompt: string,
   sampleData: ParsedCSV,
@@ -66,11 +79,53 @@ export async function generatePipelineSpec(
 ): Promise<{ spec: PipelineSpec; traceId: string }> {
   const client = getKeywordsClient();
 
+  // Build sample data string for the prompt
+  const sampleColumns = sampleData.headers.join(", ");
+  const sampleRows = sampleData.rows.slice(0, 3).map((row) => row.join(", ")).join("\n");
+
+  // Check if using Keywords AI Prompt Manager
+  if (SPEC_GENERATE_PROMPT_ID) {
+    // Use Keywords AI Prompt Manager with variables
+    const response = await client.chat.completions.create({
+      model: "gpt-4o", // Will be overridden by prompt config
+      messages: [{ role: "user", content: "placeholder" }], // Will be overridden
+      response_format: { type: "json_object" },
+      // @ts-expect-error - Keywords AI specific fields
+      prompt: {
+        prompt_id: SPEC_GENERATE_PROMPT_ID,
+        variables: {
+          user_request: prompt,
+          sample_columns: sampleColumns,
+          sample_rows: sampleRows,
+        },
+        override: true, // Use prompt config instead of SDK parameters
+      },
+      metadata: {
+        run_id: metadata.run_id,
+        pipeline_id: metadata.pipeline_id,
+        pipeline_version_id: metadata.pipeline_version_id,
+        stage: metadata.stage,
+        iteration: String(metadata.iteration),
+      },
+    } as OpenAI.ChatCompletionCreateParamsNonStreaming);
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No response from Keywords AI");
+    }
+
+    const spec = JSON.parse(content) as PipelineSpec;
+    const traceId = (response as unknown as { id?: string }).id || `trace_${Date.now()}`;
+
+    return { spec, traceId };
+  }
+
+  // Fallback: Use hardcoded prompts
   const userMessage = `User request: ${prompt}
 
-Sample data columns: ${sampleData.headers.join(", ")}
+Sample data columns: ${sampleColumns}
 Sample rows (first 3):
-${sampleData.rows.slice(0, 3).map((row) => row.join(", ")).join("\n")}
+${sampleRows}
 
 Generate the pipeline specification:`;
 
@@ -81,14 +136,13 @@ Generate the pipeline specification:`;
       { role: "user", content: userMessage },
     ],
     response_format: { type: "json_object" },
-    // Keywords AI metadata passed via extra headers or body
     // @ts-expect-error - Keywords AI specific field
     metadata: {
       run_id: metadata.run_id,
       pipeline_id: metadata.pipeline_id,
       pipeline_version_id: metadata.pipeline_version_id,
       stage: metadata.stage,
-      iteration: metadata.iteration,
+      iteration: String(metadata.iteration),
     },
   } as OpenAI.ChatCompletionCreateParamsNonStreaming);
 
@@ -98,8 +152,6 @@ Generate the pipeline specification:`;
   }
 
   const spec = JSON.parse(content) as PipelineSpec;
-  
-  // Extract trace ID from response (Keywords AI specific)
   const traceId = (response as unknown as { id?: string }).id || `trace_${Date.now()}`;
 
   return { spec, traceId };
@@ -109,10 +161,6 @@ Generate the pipeline specification:`;
 // Spec Repair
 // ============================================
 
-const SPEC_REPAIR_SYSTEM_PROMPT = `You are a data pipeline specification repair assistant. Given a pipeline spec that failed validation and the validation errors, fix the spec to resolve the errors.
-
-Return ONLY the corrected JSON spec, no explanation.`;
-
 export async function repairPipelineSpec(
   currentSpec: PipelineSpec,
   validationErrors: string[],
@@ -120,11 +168,51 @@ export async function repairPipelineSpec(
 ): Promise<{ spec: PipelineSpec; traceId: string }> {
   const client = getKeywordsClient();
 
+  const specJson = JSON.stringify(currentSpec, null, 2);
+  const errorsText = validationErrors.map((e, i) => `${i + 1}. ${e}`).join("\n");
+
+  // Check if using Keywords AI Prompt Manager
+  if (SPEC_REPAIR_PROMPT_ID) {
+    // Use Keywords AI Prompt Manager with variables
+    const response = await client.chat.completions.create({
+      model: "gpt-4o", // Will be overridden by prompt config
+      messages: [{ role: "user", content: "placeholder" }], // Will be overridden
+      response_format: { type: "json_object" },
+      // @ts-expect-error - Keywords AI specific fields
+      prompt: {
+        prompt_id: SPEC_REPAIR_PROMPT_ID,
+        variables: {
+          current_spec: specJson,
+          validation_errors: errorsText,
+        },
+        override: true,
+      },
+      metadata: {
+        run_id: metadata.run_id,
+        pipeline_id: metadata.pipeline_id,
+        pipeline_version_id: metadata.pipeline_version_id,
+        stage: metadata.stage,
+        iteration: String(metadata.iteration),
+      },
+    } as OpenAI.ChatCompletionCreateParamsNonStreaming);
+
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error("No response from Keywords AI");
+    }
+
+    const spec = JSON.parse(content) as PipelineSpec;
+    const traceId = (response as unknown as { id?: string }).id || `trace_${Date.now()}`;
+
+    return { spec, traceId };
+  }
+
+  // Fallback: Use hardcoded prompts
   const userMessage = `Current pipeline spec:
-${JSON.stringify(currentSpec, null, 2)}
+${specJson}
 
 Validation errors:
-${validationErrors.map((e, i) => `${i + 1}. ${e}`).join("\n")}
+${errorsText}
 
 Fix the pipeline specification to resolve these errors:`;
 
@@ -141,7 +229,7 @@ Fix the pipeline specification to resolve these errors:`;
       pipeline_id: metadata.pipeline_id,
       pipeline_version_id: metadata.pipeline_version_id,
       stage: metadata.stage,
-      iteration: metadata.iteration,
+      iteration: String(metadata.iteration),
     },
   } as OpenAI.ChatCompletionCreateParamsNonStreaming);
 

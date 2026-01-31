@@ -108,7 +108,7 @@ export default function PipelineDetailPage() {
   if (!pipeline) {
     return (
       <div className="container py-8">
-        <p>Pipeline not found</p>
+        <p>Project not found</p>
       </div>
     );
   }
@@ -120,7 +120,7 @@ export default function PipelineDetailPage() {
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/pipelines">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Pipelines
+            Back to My Projects
           </Link>
         </Button>
         
@@ -131,13 +131,13 @@ export default function PipelineDetailPage() {
                 <Input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Pipeline name"
+                  placeholder="Project name"
                   className="text-2xl font-bold h-auto py-1"
                 />
                 <Textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  placeholder="Description (optional)"
+                  placeholder="Add a note (optional)"
                   className="min-h-[60px] resize-none"
                 />
                 <div className="flex items-center gap-2">
@@ -173,7 +173,7 @@ export default function PipelineDetailPage() {
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-muted-foreground">{pipeline.description || "No description"}</p>
+                <p className="text-muted-foreground">{pipeline.description || "No notes added"}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   Created {formatDate(pipeline.created_at)}
                 </p>
@@ -190,7 +190,7 @@ export default function PipelineDetailPage() {
             )}
             <Button onClick={() => setShowRerunModal(true)} disabled={!selectedVersionId}>
               <Play className="mr-2 h-4 w-4" />
-              Run Again
+              Run on New File
             </Button>
             <Button variant="outline">
               <Download className="mr-2 h-4 w-4" />
@@ -210,8 +210,8 @@ export default function PipelineDetailPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Code className="h-4 w-4" />
-                <CardTitle className="text-base">Pipeline Spec</CardTitle>
-                <Badge variant="secondary">Advanced</Badge>
+                <CardTitle className="text-base">Technical Details</CardTitle>
+                <Badge variant="secondary">For Developers</Badge>
               </div>
               <ChevronRight className={`h-4 w-4 transition-transform ${showSpec ? "rotate-90" : ""}`} />
             </div>
@@ -229,26 +229,26 @@ export default function PipelineDetailPage() {
       {/* Run History */}
       <Card>
         <CardHeader>
-          <CardTitle>Run History</CardTitle>
+          <CardTitle>Previous Results</CardTitle>
           <CardDescription>
-            Past runs of this pipeline
+            Every time you&apos;ve used this recipe
           </CardDescription>
         </CardHeader>
         <CardContent>
           {runs.length === 0 ? (
             <p className="py-8 text-center text-muted-foreground">
-              No runs yet
+              No results yet — try cleaning a file!
             </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Run ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Input Rows</TableHead>
-                  <TableHead>Output Rows</TableHead>
-                  <TableHead>Fix Iterations</TableHead>
-                  <TableHead>Time</TableHead>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Result</TableHead>
+                  <TableHead>Rows In</TableHead>
+                  <TableHead>Rows Out</TableHead>
+                  <TableHead>Fixes</TableHead>
+                  <TableHead>When</TableHead>
                   <TableHead></TableHead>
                 </TableRow>
               </TableHeader>

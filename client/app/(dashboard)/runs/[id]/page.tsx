@@ -48,10 +48,10 @@ export default function RunDetailPage() {
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/pipelines">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Pipelines
+            Back to My Projects
           </Link>
         </Button>
-        <p>Run not found</p>
+        <p>Results not found</p>
       </div>
     );
   }
@@ -63,16 +63,13 @@ export default function RunDetailPage() {
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href={`/pipelines/${run.pipeline_id}`}>
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Pipeline
+            Back to Project
           </Link>
         </Button>
         
-        <h1 className="text-3xl font-bold tracking-tight">Run Details</h1>
-        <p className="text-muted-foreground">
-          Run ID: <code className="rounded bg-muted px-1 py-0.5">{run.id}</code>
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">Your Results</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Started {formatDate(run.created_at)}
+          Completed {formatDate(run.created_at)}
         </p>
       </div>
 
@@ -89,10 +86,10 @@ export default function RunDetailPage() {
       {/* Failed State */}
       {run.status === "failed" && (
         <div className="mb-8 rounded-lg border border-destructive/50 bg-destructive/10 p-6">
-          <h3 className="font-semibold text-destructive">Run Failed</h3>
+          <h3 className="font-semibold text-destructive">Something went wrong</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            This run failed after {run.fix_iterations} fix iterations. 
-            Check the logs below for details about what went wrong.
+            We couldn&apos;t process your request. Try being more specific about what you need, 
+            or check the details below to see what happened.
           </p>
         </div>
       )}

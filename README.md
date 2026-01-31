@@ -238,8 +238,25 @@ Try these prompts to see Dagger's capabilities:
 Dagger uses [Keywords AI](https://keywordsai.co) for:
 
 - **LLM Orchestration**: Unified API for spec generation and repair
+- **Prompt Manager**: Version-controlled prompts with A/B testing capability
 - **Observability**: Full trace logging for every LLM call
 - **Reliability**: Automatic retries and fallbacks
+
+### Prompt Manager Setup (Optional)
+
+Instead of hardcoded prompts, you can use Keywords AI's Prompt Manager for:
+- Version control and rollback
+- A/B testing different prompt variations
+- Team collaboration without code changes
+- Per-prompt performance monitoring
+
+See [`server/PROMPTS.md`](server/PROMPTS.md) for setup instructions.
+
+```env
+# Add to server/.env after creating prompts in Keywords AI dashboard
+KEYWORDS_SPEC_GENERATE_PROMPT_ID=your-prompt-id
+KEYWORDS_SPEC_REPAIR_PROMPT_ID=your-prompt-id
+```
 
 Every run stores a `keywords_trace_id` that links directly to the Keywords AI dashboard for debugging.
 

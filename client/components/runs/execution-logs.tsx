@@ -147,7 +147,7 @@ export function ExecutionLogs({ logs }: ExecutionLogsProps) {
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <Terminal className="h-5 w-5" />
-            Execution Logs
+            What Happened (Technical Details)
           </CardTitle>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={expandAll}>

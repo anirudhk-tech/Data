@@ -35,16 +35,16 @@ export default function PipelinesPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/20 text-primary glow-sm">
               <Workflow className="h-5 w-5" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight">Pipelines</h1>
+            <h1 className="text-3xl font-bold tracking-tight">My Projects</h1>
           </div>
           <p className="text-muted-foreground">
-            Create and manage your data transformation pipelines
+            All your saved recipes in one place
           </p>
         </div>
         <Button asChild size="lg" className="gap-2">
           <Link href="/pipelines/new">
             <Plus className="h-5 w-5" />
-            Create Pipeline
+            New Project
           </Link>
         </Button>
       </div>
@@ -68,14 +68,14 @@ export default function PipelinesPage() {
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary glow">
               <Zap className="h-8 w-8" />
             </div>
-            <h3 className="text-xl font-semibold">No pipelines yet</h3>
+            <h3 className="text-xl font-semibold">No projects yet</h3>
             <p className="mb-6 text-muted-foreground">
-              Create your first pipeline to transform your data
+              Upload a spreadsheet and tell us what you need — we&apos;ll handle the rest
             </p>
             <Button asChild size="lg">
               <Link href="/pipelines/new">
                 <Plus className="mr-2 h-5 w-5" />
-                Create Pipeline
+                Start My First Project
               </Link>
             </Button>
           </div>

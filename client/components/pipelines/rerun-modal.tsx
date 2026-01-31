@@ -86,10 +86,10 @@ export function RerunModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Play className="h-5 w-5" />
-            Run Pipeline Again
+            Run on Another File
           </DialogTitle>
           <DialogDescription>
-            Upload new data to run through &quot;{pipelineName}&quot;
+            Use the same recipe on a new file
           </DialogDescription>
         </DialogHeader>
 
@@ -135,12 +135,12 @@ export function RerunModal({
               {isRunning ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Running...
+                  Working...
                 </>
               ) : (
                 <>
                   <Play className="mr-2 h-4 w-4" />
-                  Run Pipeline
+                  Run It
                 </>
               )}
             </Button>

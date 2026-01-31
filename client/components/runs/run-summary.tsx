@@ -24,7 +24,7 @@ export function RunSummary({ run }: RunSummaryProps) {
       {/* Status */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Status</CardTitle>
+          <CardTitle className="text-sm font-medium">Result</CardTitle>
           {run.status === "success" ? (
             <CheckCircle className="h-4 w-4 text-green-500" />
           ) : (
@@ -33,7 +33,7 @@ export function RunSummary({ run }: RunSummaryProps) {
         </CardHeader>
         <CardContent>
           <Badge variant={run.status === "success" ? "default" : "destructive"} className="text-lg">
-            {run.status}
+            {run.status === "success" ? "Done!" : "Failed"}
           </Badge>
         </CardContent>
       </Card>
@@ -41,7 +41,7 @@ export function RunSummary({ run }: RunSummaryProps) {
       {/* Input/Output Rows */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Rows</CardTitle>
+          <CardTitle className="text-sm font-medium">Rows Processed</CardTitle>
           <div className="flex items-center gap-1">
             <FileInput className="h-4 w-4 text-muted-foreground" />
             <FileOutput className="h-4 w-4 text-muted-foreground" />
@@ -54,7 +54,7 @@ export function RunSummary({ run }: RunSummaryProps) {
           <p className="text-xs text-muted-foreground">
             {run.input_rows - run.output_rows > 0 
               ? `${(run.input_rows - run.output_rows).toLocaleString()} rows removed`
-              : "No rows removed"}
+              : "All rows kept"}
           </p>
         </CardContent>
       </Card>
@@ -62,15 +62,15 @@ export function RunSummary({ run }: RunSummaryProps) {
       {/* Fix Iterations */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Fix Iterations</CardTitle>
+          <CardTitle className="text-sm font-medium">Auto-Corrections</CardTitle>
           <RefreshCw className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{run.fix_iterations}</div>
           <p className="text-xs text-muted-foreground">
             {run.fix_iterations === 0 
-              ? "No fixes needed"
-              : `${run.fix_iterations} validation ${run.fix_iterations === 1 ? "fix" : "fixes"}`}
+              ? "Got it right first try!"
+              : `Made ${run.fix_iterations} ${run.fix_iterations === 1 ? "adjustment" : "adjustments"}`}
           </p>
         </CardContent>
       </Card>
@@ -80,7 +80,7 @@ export function RunSummary({ run }: RunSummaryProps) {
         <div className="absolute right-0 top-0 h-16 w-16 bg-gradient-to-bl from-primary/20 to-transparent" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div className="flex items-center gap-1.5">
-            <CardTitle className="text-sm font-medium">Quality Score</CardTitle>
+            <CardTitle className="text-sm font-medium">Quality</CardTitle>
             <Sparkles className="h-3 w-3 text-primary" />
           </div>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -91,8 +91,8 @@ export function RunSummary({ run }: RunSummaryProps) {
           </div>
           <p className="text-xs text-muted-foreground">
             {run.constraint_pass 
-              ? "All constraints passed"
-              : "Some constraints failed"}
+              ? "Everything looks good!"
+              : "Some issues detected"}
           </p>
         </CardContent>
       </Card>
@@ -105,9 +105,9 @@ export function RunSummary({ run }: RunSummaryProps) {
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm font-medium">Evaluation powered by Keywords AI</p>
+              <p className="text-sm font-medium">Powered by Keywords AI</p>
               <p className="text-xs text-muted-foreground">
-                LLM orchestration, observability, and reliability scoring
+                Smart processing and quality checks
               </p>
             </div>
           </div>
@@ -118,7 +118,7 @@ export function RunSummary({ run }: RunSummaryProps) {
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 rounded-lg bg-primary/20 border border-primary/30 px-3 py-1.5 text-sm font-medium text-primary transition-all hover:bg-primary/30 hover:glow-sm"
             >
-              View Trace
+              See Details
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           )}

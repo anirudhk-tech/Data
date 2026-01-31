@@ -46,7 +46,7 @@ export default function NewPipelinePage() {
         <Button variant="ghost" size="sm" asChild className="mb-4">
           <Link href="/pipelines">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Pipelines
+            Back to My Projects
           </Link>
         </Button>
         <div className="flex items-center gap-3">
@@ -54,9 +54,9 @@ export default function NewPipelinePage() {
             <Sparkles className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create Pipeline</h1>
+            <h1 className="text-3xl font-bold tracking-tight">New Project</h1>
             <p className="text-muted-foreground">
-              Upload your data and describe what you want to do with it
+              Upload your file and tell us what you need in plain English
             </p>
           </div>
         </div>

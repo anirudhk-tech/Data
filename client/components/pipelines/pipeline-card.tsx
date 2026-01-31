@@ -108,7 +108,7 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
               </CardTitle>
             )}
             <CardDescription className="line-clamp-2">
-              {pipeline.description || "No description"}
+              {pipeline.description || "No notes"}
             </CardDescription>
           </div>
           <div className="flex items-center gap-1">
@@ -140,16 +140,16 @@ export function PipelineCard({ pipeline, onUpdate }: PipelineCardProps) {
         <div className="flex items-center justify-between">
           <div className="text-sm text-muted-foreground">
             {pipeline.last_run_at ? (
-              <span>Last run {formatDistanceToNow(pipeline.last_run_at)}</span>
+              <span>Used {formatDistanceToNow(pipeline.last_run_at)}</span>
             ) : (
-              <span className="text-muted-foreground/60">Never run</span>
+              <span className="text-muted-foreground/60">Not used yet</span>
             )}
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
               <Link href={`/pipelines/${pipeline.id}`}>
                 <Play className="mr-1 h-3 w-3" />
-                Run
+                Use
               </Link>
             </Button>
             <Button variant="ghost" size="icon" asChild className="group-hover:text-primary transition-colors">

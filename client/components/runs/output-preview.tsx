@@ -146,8 +146,8 @@ export function OutputPreview({ runId, outputBase64 }: OutputPreviewProps) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Output Preview</CardTitle>
-          <CardDescription>No output data available</CardDescription>
+          <CardTitle>Your Results</CardTitle>
+          <CardDescription>No data available</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -158,9 +158,9 @@ export function OutputPreview({ runId, outputBase64 }: OutputPreviewProps) {
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Output Preview</CardTitle>
+            <CardTitle>Your Results</CardTitle>
             <CardDescription>
-              First {Math.min(data.rows.length, 10)} of {data.rows.length} rows
+              Showing {Math.min(data.rows.length, 10)} of {data.rows.length.toLocaleString()} rows
             </CardDescription>
           </div>
           <div className="flex flex-col items-end gap-1">
@@ -173,7 +173,7 @@ export function OutputPreview({ runId, outputBase64 }: OutputPreviewProps) {
               ) : (
                 <>
                   <Download className="mr-2 h-4 w-4" />
-                  Download CSV
+                  Download File
                 </>
               )}
             </Button>

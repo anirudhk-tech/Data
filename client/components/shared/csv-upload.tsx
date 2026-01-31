@@ -131,8 +131,8 @@ export function CSVUpload({ onDataParsed, className }: CSVUploadProps) {
     <div className={cn("space-y-4", className)}>
       <Tabs defaultValue="upload">
         <TabsList className="grid w-full grid-cols-2 bg-white/5">
-          <TabsTrigger value="upload">Upload File</TabsTrigger>
-          <TabsTrigger value="paste">Paste Data</TabsTrigger>
+          <TabsTrigger value="upload">Upload a File</TabsTrigger>
+          <TabsTrigger value="paste">Copy & Paste</TabsTrigger>
         </TabsList>
         
         <TabsContent value="upload" className="mt-4">
@@ -153,33 +153,33 @@ export function CSVUpload({ onDataParsed, className }: CSVUploadProps) {
               onChange={handleFileInput}
               className="absolute inset-0 cursor-pointer opacity-0"
             />
-            <div className="flex flex-col items-center gap-3 text-center">
-              <div className={cn(
-                "flex h-14 w-14 items-center justify-center rounded-xl transition-all duration-300",
-                isDragging ? "bg-primary/20 glow-sm" : "bg-white/5"
-              )}>
-                <Upload className={cn(
-                  "h-7 w-7 transition-colors",
-                  isDragging ? "text-primary" : "text-muted-foreground"
-                )} />
+              <div className="flex flex-col items-center gap-3 text-center">
+                <div className={cn(
+                  "flex h-14 w-14 items-center justify-center rounded-xl transition-all duration-300",
+                  isDragging ? "bg-primary/20 glow-sm" : "bg-white/5"
+                )}>
+                  <Upload className={cn(
+                    "h-7 w-7 transition-colors",
+                    isDragging ? "text-primary" : "text-muted-foreground"
+                  )} />
+                </div>
+                <div>
+                  <p className="font-medium">Drop your file here</p>
+                  <p className="text-sm text-muted-foreground">or click to pick one (CSV or Excel export)</p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium">Drop your CSV file here</p>
-                <p className="text-sm text-muted-foreground">or click to browse</p>
-              </div>
-            </div>
           </div>
         </TabsContent>
         
         <TabsContent value="paste" className="mt-4 space-y-4">
           <Textarea
-            placeholder="Paste your CSV data here...&#10;&#10;Example:&#10;email,name,company&#10;john@acme.com,John Smith,Acme Corp"
+            placeholder="Paste your data here...&#10;&#10;Example:&#10;email,name,company&#10;john@acme.com,John Smith,Acme Corp"
             value={pastedContent}
             onChange={(e) => setPastedContent(e.target.value)}
             className="min-h-[200px] font-mono text-sm"
           />
           <Button onClick={handlePasteSubmit} className="w-full">
-            Load Pasted Data
+            Use This Data
           </Button>
         </TabsContent>
       </Tabs>

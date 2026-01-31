@@ -13,7 +13,7 @@ import { DaggerIcon } from "@/components/shared/dagger-icon";
 
 const navigation = [
   {
-    name: "Pipelines",
+    name: "My Projects",
     href: "/pipelines",
     icon: Workflow,
   },
@@ -31,7 +31,7 @@ export function Sidebar() {
         </div>
         <div className="flex flex-col">
           <span className="text-lg font-bold tracking-tight glow-text">Dagger</span>
-          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Data Pipelines</span>
+          <span className="text-[10px] uppercase tracking-widest text-muted-foreground">Data Magic</span>
         </div>
       </div>
 
@@ -40,7 +40,7 @@ export function Sidebar() {
         <Button asChild className="w-full justify-start gap-2 glow-sm hover:glow transition-all duration-300">
           <Link href="/pipelines/new">
             <Plus className="h-4 w-4" />
-            Create Pipeline
+            New Project
           </Link>
         </Button>
       </div>
