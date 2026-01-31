@@ -1,0 +1,301 @@
+Backend README (implementation)
+This README is for the PipeCanvas backend: a TypeScript service (Supabase Edge Functions) that powers the B2B UI and runs pipelines via Keywords AI + a C++/WASM engine. Supabase’s Edge Functions template uses Deno.serve(async (req) => { const body = await req.json() ... }) for JSON HTTP handlers, and Edge Functions support running WASM modules (useful for porting C/C++ to WASM and calling it from TypeScript).
+
+What the backend does
+Exposes HTTP endpoints used by the UI:
+
+Create pipeline + run (POST /run)
+
+List pipelines (GET /pipelines)
+
+View pipeline versions (GET /pipelines/:id)
+
+Re-run a saved version on new data (POST /pipelines/:id/run)
+
+View a run (GET /runs/:id)
+
+Export a pipeline version to Docker (POST /export/docker)
+
+Orchestrates the “agent loop”:
+
+Spec generation (Keywords AI)
+
+Deterministic validation (C++/WASM)
+
+Repair loop (Keywords AI)
+
+Execution (WASM or TS fallback)
+
+Metrics + eval + persistence
+
+Tech stack (backend)
+Supabase Edge Functions (TypeScript/Deno) for the HTTP service.
+​
+
+Supabase Postgres for state (pipelines, versions, runs).
+
+Supabase Storage for artifacts (optional but recommended for exports/large payloads).
+
+Keywords AI gateway for LLM calls; supports OpenAI SDK style integration + extra metadata/fallback parameters.
+​
+
+C++ compiled to WASM for deterministic pipeline validation/execution; Edge Functions support importing WASM modules and calling exported functions.
+​
+
+Repo layout
+text
+supabase/
+  functions/
+    run/index.ts
+    pipelines/index.ts
+    pipeline_run/index.ts
+    runs/index.ts
+    export_docker/index.ts
+  migrations/
+    001_init.sql
+
+shared/
+  types.ts
+  pipeline_spec.ts
+  eval.ts
+  keywords.ts
+  base64.ts
+  csv.ts
+
+engine_wasm/
+  pipeline_engine.wasm
+  pipeline_engine.js        # optional JS bindings if you generate them
+Database schema (migrations)
+Tables (minimum):
+
+pipelines(id, created_at, name, owner_id)
+
+pipeline_versions(id, pipeline_id, version, spec_json, source_prompt, created_by, created_at)
+
+runs(id, pipeline_version_id, status, created_at, finished_at, input_format, input_bytes, input_hash, metrics_json, eval_json, validation_errors_json, keywords_trace_id)
+
+artifacts(id, run_id, kind, storage_path, content_type, created_at) (optional)
+
+Recommended indexes:
+
+pipeline_versions(pipeline_id, version desc)
+
+runs(pipeline_version_id, created_at desc)
+
+runs(keywords_trace_id) (if you query by trace)
+
+Environment variables
+Backend:
+
+SUPABASE_URL
+
+SUPABASE_SERVICE_ROLE_KEY (server-side only)
+
+KEYWORDS_AI_API_KEY
+
+KEYWORDS_BASE_URL = https://api.keywordsai.co/api/
+
+LLM_PROVIDER_API_KEY (e.g., OpenAI key)
+
+PROMPT_ID_SPEC_GENERATE
+
+PROMPT_ID_SPEC_REPAIR
+
+MAX_INPUT_BYTES (e.g., 1_000_000)
+
+MAX_FIX_ITERS_DEFAULT (e.g., 3)
+
+RUN_TIMEOUT_MS (e.g., 8000)
+
+Keywords AI integration (core)
+We route all LLM calls through Keywords AI using an OpenAI-compatible client and pass extra_body metadata so traces are filterable; Keywords AI docs show extra_body keys like metadata, customer_identifier, and fallback_models.
+​
+
+Prompt management strategy
+PROMPT_ID_SPEC_GENERATE: (user prompt + inferred schema + constraints) → PipelineSpec JSON
+
+PROMPT_ID_SPEC_REPAIR: (PipelineSpec + validation errors) → repaired PipelineSpec
+
+Metadata (required)
+For every Keywords AI call, include:
+
+json
+{
+  "metadata": {
+    "run_id": "...",
+    "pipeline_id": "...",
+    "pipeline_version_id": "...",
+    "stage": "spec_generate|spec_repair",
+    "iteration": 0
+  }
+}
+Store keywords_trace_id returned (or derivable from response/log link) into runs.keywords_trace_id.
+
+WASM engine integration (C++/WASM)
+Supabase documents that Edge Functions support running WASM modules and shows calling an exported function from TypeScript.
+​
+
+Required exports
+validate_pipeline(spec_json: string) -> errors_json: string
+
+Optional:
+
+run_pipeline(spec_json: string, input_csv_bytes: bytes) -> output_csv_bytes: bytes
+
+Loading WASM in Edge Functions
+Two viable patterns:
+
+Bundled JS bindings (recommended for hackathon):
+
+Use a generated JS wrapper (e.g., from wasm-pack-like output or your own small wrapper) and import it directly in the function.
+
+This matches Supabase’s doc pattern: import { add } from "./add-wasm/pkg/add_wasm.js"; then call it in Deno.serve.
+​
+
+Manual instantiate
+
+Load .wasm bytes (bundled or fetched) and do WebAssembly.instantiate(...).
+
+Caveat: some hosted edge environments restrict filesystem access; avoid relying on local FS reads at runtime.
+
+HTTP endpoints (implementation)
+1) POST /run (create + run)
+Purpose: UI “create pipeline” (not developer-facing conceptually).
+
+Steps:
+
+Parse body:
+
+prompt (string)
+
+data.format (csv)
+
+data.content_base64
+
+options (output_format, max_fix_iters, strict)
+
+Enforce limits:
+
+base64 decode → bytes
+
+check bytes.length <= MAX_INPUT_BYTES
+
+Create DB rows:
+
+pipelines (name can be auto: first 6 words of prompt)
+
+pipeline_versions with placeholder spec_json = null, source_prompt = prompt
+
+runs status = validating (or created)
+
+Call Keywords AI:
+
+use PROMPT_ID_SPEC_GENERATE and pass variables (prompt, schema sample)
+
+Validate spec:
+
+call validate_pipeline(spec_json) in WASM
+
+Repair loop:
+
+if errors, call Keywords AI with PROMPT_ID_SPEC_REPAIR, include errors, repeat up to max_fix_iters
+
+Execute:
+
+either call WASM run_pipeline, or implement minimal TS execution for ops (filter/select/dedupe)
+
+Compute metrics + eval:
+
+metrics: input_rows, output_rows, null_rate, exec_time_ms
+
+eval: schema_match, constraint_pass, exec_success, score
+
+Persist:
+
+pipeline_versions.spec_json updated to final spec
+
+runs updated to succeeded/failed + evals + errors + keywords_trace_id
+
+Return response:
+
+include pipeline_id, pipeline_version_id, run_id, output, report
+
+2) GET /pipelines
+Returns:
+
+json
+[
+  {
+    "pipeline_id": "...",
+    "name": "...",
+    "latest_version": 3,
+    "last_run": { "run_id": "...", "status": "succeeded", "created_at": "..." }
+  }
+]
+3) GET /pipelines/:id
+Returns pipeline metadata + versions list:
+
+json
+{
+  "pipeline_id": "...",
+  "name": "...",
+  "versions": [
+    { "pipeline_version_id": "...", "version": 3, "created_at": "...", "source_prompt": "...", "spec_json": { ... } }
+  ]
+}
+4) POST /pipelines/:id/run (re-run saved version)
+Purpose: UI “run again on new data” with no re-generation.
+
+Steps:
+
+Parse { pipeline_version_id, data, options }
+
+Load spec_json from that version
+
+Validate spec again (fast) with WASM
+
+Execute with new data
+
+Persist new runs row
+
+Return output + report
+
+5) GET /runs/:id
+Returns run report + pointers to artifacts (or inline base64 preview).
+
+6) POST /export/docker
+Input: { pipeline_version_id }
+
+Output: zip containing:
+
+pipeline.json
+
+pipeline_engine.wasm
+
+minimal server that implements POST /run execute-only
+
+Dockerfile, README.md
+
+Implementation notes (key decisions)
+Execution approach (recommended for speed)
+v0: implement validation in WASM, and execution in TypeScript for 3–5 ops.
+
+If you have time: move execution into WASM for speed and a cleaner Docker export.
+
+Data formats
+v0 supports csv only.
+
+Internally parse CSV into arrays/records; keep memory bounded.
+
+Deterministic evals
+Evaluate constraints like:
+
+required columns exist
+
+null rate thresholds
+
+uniqueness for dedupe key (after dedupe, check)
+
+Return eval summary in the UI as “Quality checks.”
+
+

@@ -1,0 +1,29 @@
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Supabase
+.supabase/
+
+# Dependencies (if using import maps)
+vendor/
+
+# Build artifacts
+dist/
+*.wasm.map
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+node_modules/
